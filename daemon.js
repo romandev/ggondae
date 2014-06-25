@@ -35,31 +35,30 @@ function requestTest(info)
   var layoutWidth = info.layoutWidth;
 
   requestDeviceSize(width, height, function() {
-    requestLoadUrl(url, function() {
-      requestScreenshot(id + "-before", function() {
-        requestLoadUrl(url, function() {
-          requestFixedLayout(layoutWidth, function() {
-            requestScreenshot(id + "-after", function() {
-              info.current++;
-              requestTest(info);
-            }); // requestScreenshot();
-          }); // requestFixedLayout();
-        }); // requestLoadUrl();
-      }); // requestScreenshot()
-    }); // requestLoadUrl()
+  requestLoadUrl(url, function() {
+  requestScreenshot(id + "-before", function() {
+  requestDeviceSize(width, height, function() {
+  requestLoadUrl(url, function() {
+  requestFixedLayout(layoutWidth, function() {
+  requestScreenshot(id + "-after", function() {
+    info.current++;
+    requestTest(info);
+  }); // requestScreenshot()
+  }); // requestFixedLayout()
+  }); // requestLoadUrl()
+  }); // requestDeviceSize()
+  }); // requestScreenshot()
+  }); // requestLoadUrl()
   }); // requestDeviceSize()
 }
 
 function requestLoadUrl(url, callback)
 {
-  var deleter = setTimeout(function() {
-    requestLoadUrl(url, callback);
-  }, 20000);
-
   getCurrent(function(win, tab) {
     chrome.tabs.update(tab.id, {
       url : url,
     }, function() {
+
       var loader = function(tabId, changeInfo) {
         if (tabId != tab.id || changeInfo.status != "complete")
           return;
@@ -73,6 +72,12 @@ function requestLoadUrl(url, callback)
           callback();
         }, 500);
       };
+
+      var deleter = setTimeout(function() {
+        chrome.tabs.onUpdated.removeListener(loader);
+        clearTimeout(deleter);
+        callback();
+      }, 10000);
 
       chrome.tabs.onUpdated.addListener(loader);
     });
