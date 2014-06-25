@@ -9,6 +9,12 @@
     "downloads",
     "<all_urls>"
   ],
+  "background" : {
+    "persistent" : true,
+    "scripts" : [
+      "daemon.js"
+    ]
+  },
   "browser_action" : {
     "default_popup" : "view.html"
   }

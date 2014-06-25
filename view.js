@@ -6,6 +6,7 @@ var logicalWidth;
 var logicalHeight;
 var urlList;
 var doTest;
+var reset;
 var urlListData;
 
 window.addEventListener("load", main);
@@ -22,6 +23,8 @@ function main()
   devicePixelRatio.addEventListener("keyup", calculateLogicalSize);
   devicePixelRatio.addEventListener("change", calculateLogicalSize);
   urlList.addEventListener("change", checkUrlList);
+  doTest.addEventListener("click", startTest);
+  reset.addEventListener("click", cancelUrlList);
 }
 
 function selectElements()
@@ -34,6 +37,7 @@ function selectElements()
   logicalHeight = document.getElementById("logical_height");
   urlList = document.getElementById("url_list");
   doTest = document.getElementById("do_test");
+  reset = document.getElementById("reset");
 }
 
 function calculateLogicalSize()
@@ -53,6 +57,10 @@ function calculateLogicalSize()
 
 function successUrlList()
 {
+  deviceWidth.disabled = true;
+  deviceHeight.disabled = true;
+  devicePixelRatio.disabled = true;
+  layoutWidth.disabled = true;
   doTest.disabled = false;
   // FIXME: send "Succeeded to load the url list file." to status bar.
 }
@@ -61,6 +69,10 @@ function cancelUrlList()
 {
   urlListData = null;
   urlList.value = "";
+  deviceWidth.disabled = false;
+  deviceHeight.disabled = false;
+  devicePixelRatio.disabled = false;
+  layoutWidth.disabled = false;
   doTest.disabled = true;
   // FIXME: send "We should only support json file." to status bar.
 }
@@ -87,4 +99,10 @@ function checkUrlList(e)
     successUrlList();
   });
   reader.readAsText(file);
+}
+
+function startTest()
+{
+  chrome.extension.getBackgroundPage().startTest(urlListData);
+  window.close();
 }
