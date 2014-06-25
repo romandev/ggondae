@@ -1,5 +1,5 @@
 fixedLayout(document.body.clientWidth);
-fixedLayout(980);
+fixedLayout(__layoutWidth__);
 
 function fixedLayout(layoutWidth)
 {
