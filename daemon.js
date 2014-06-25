@@ -101,7 +101,7 @@ function requestLoadUrl(url, callback)
         var timer = setTimeout(function() {
           clearTimeout(timer);
           callback();
-        }, 500);
+        }, 2000);
       };
 
       var deleter = setTimeout(function() {
@@ -133,7 +133,7 @@ function requestFixedLayout(layoutWidth, callback)
         var timer = setTimeout(function() {
           clearTimeout(timer);
           callback();
-        }, 500);
+        }, 2000);
       });
     });
   });
@@ -151,7 +151,11 @@ function requestScreenshot(name, callback)
         filename : "./result/images/" + name + ".png"
       }); // chrome.downloads.download()
 
-      callback();
+      // Delayed callback
+      var timer = setTimeout(function() {
+        clearTimeout(timer);
+        callback();
+      }, 2000);
     }); // chrome.tabs.captureVisibleTab()
   }); // getCurrent()
 }
