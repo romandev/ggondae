@@ -20,20 +20,26 @@ function requestDeviceSize(callback)
       top : 0,
       width : win.width + dx,
       height : win.height + dy
+    // NEXT: requestLoadUrl (by requestTest)
     }, callback);
   });
 }
 
 function requestTest()
 {
-  console.log(requestTest);
+  console.log("requestTest");
 
   // Finished all of tests
   if (testInfo.urlList.length <= 0)
     return;
 
+  // NEXT: requestDeviceSize
   requestDeviceSize(function() {
-    requestLoadUrl(testInfo.urlList.pop(), requestFixedLayout);
+    requestLoadUrl(testInfo.urlList.pop(), function() {
+      requestFixedLayout(function() {
+        console.log("FINISH");
+      });
+    })
   });
 }
 
@@ -48,8 +54,9 @@ function requestLoadUrl(url, callback)
           return;
 
         chrome.tabs.onUpdated.removeListener(loader);
-        console.log("Do next works");
-        // Do next works
+
+        // NEXT: requestFixedLayout (by requestTest)
+        callback(url);
       };
 
       chrome.tabs.onUpdated.addListener(loader);
@@ -57,8 +64,22 @@ function requestLoadUrl(url, callback)
   });
 }
 
-function requestFixedLayout()
+function requestFixedLayout(callback)
 {
+  getCurrent(function(win, tab) {
+    chrome.tabs.executeScript(tab.id, {
+      file : "./injection.js",
+      allFrames : true,
+      runAt : "document_end"
+    }, function() {
+      // FIXME: How can we know to end the layoutting of contents?
+      // For now, we can just use timer to avoid confliction.
+      var timer = setTimeout(function() {
+        clearTimeout(timer);
+        callback();
+      }, 1000);
+    });
+  });
 }
 
 function startTest(info)
