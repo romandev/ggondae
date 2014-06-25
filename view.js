@@ -107,7 +107,7 @@ function startTest()
     logicalWidth : logicalWidth.value,
     logicalHeight : logicalHeight.value,
     layoutWidth : layoutWidth.value,
-    urlList : urlListData
+    urlList : [ "http://www.naver.com", "http://www.daum.net" ]/*urlListData*/
   });
   window.close();
 }
