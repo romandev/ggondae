@@ -1,4 +1,3 @@
-fixedLayout(document.body.clientWidth);
 fixedLayout(__layoutWidth__);
 
 function fixedLayout(layoutWidth)
@@ -6,8 +5,12 @@ function fixedLayout(layoutWidth)
   document.body.style = document.body.style + "overflow:hidden";
   var meta = document.querySelector("meta[name=viewport]");
 
-  if (meta != undefined && meta != null)
+  if (meta != undefined && meta != null) {
+    return;
+
+    // force fixed layout mode
     document.head.removeChild(meta);
+  }
 
   meta = document.createElement("meta");
   meta.setAttribute("name", "viewport");
