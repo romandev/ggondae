@@ -22,11 +22,42 @@ function requestDeviceSize(width, height, callback)
   });
 }
 
+function createReport(info)
+{
+  var css = "<style>" +
+      "img { width: 100px; height: 100px; }" +
+      "table { border: 1px solid gray; border-collapse: collapse; }" +
+      "td, th { border : 1px solid gray; text-align : center; }" +
+      "</style>";
+
+  var html = "<!DOCTYPE html><html><head>" + css + "</head><body><p>" +
+      info.logicalWidth + " X " + info.logicalHeight + " (Layout Width : " + info.layoutWidth + ")</p>" +
+      "<table><tr><th>Number</th><th>URL</th><th>Before</th><th>After</th></tr>";
+
+  for (var i = 0; i < info.urlList.length; i++) {
+    var url = info.urlList[i];
+    var beforeLink = "./images/" + i + "-before.png";
+    var afterLink = "./images/" + i + "-after.png";
+    html += "<tr><td>" + (i + 1) + "</td><td>" + url + "</td>";
+    html += "<td><a target='_blank' href='" + beforeLink + "'><img src='" + beforeLink +"'></a></td>";
+    html += "<td><a target='_blank' href='" + afterLink + "'><img src='" + afterLink +"'></a></td></tr>";
+  }
+  html += "</table></body></html>";
+
+  chrome.downloads.download({
+    url : "data:text/html," + encodeURIComponent(html),
+    conflictAction : "overwrite",
+    filename : "./result/report.html",
+  }); // chrome.downloads.download()
+}
+
 function requestTest(info)
 {
   // Finished all of tests
-  if (info.current == info.urlList.length)
+  if (info.current == info.urlList.length) {
+    createReport(info);
     return;
+  }
 
   var id = info.current;
   var url = info.urlList[id];

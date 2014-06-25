@@ -104,6 +104,9 @@ function checkUrlList(e)
 function startTest()
 {
   chrome.extension.getBackgroundPage().startTest({
+    deviceWidth : deviceWidth.value,
+    deviceHeight : deviceHeight.value,
+    devicePixelRatio : devicePixelRatio.value,
     logicalWidth : logicalWidth.value,
     logicalHeight : logicalHeight.value,
     layoutWidth : layoutWidth.value,
