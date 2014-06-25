@@ -1,0 +1,13 @@
+body {
+  width : 300px;
+}
+
+label {
+  display : inline-block;
+  width : 160px;
+  text-align : right;
+}
+
+input[type=number], input[type=file] {
+  width : 100px;
+}

@@ -1,8 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" type="text/css" href="./view.css">
+  <script type="text/javascript" src="./view.js"></script>
 </head>
 <body>
-ggondae layout 0.1
+<form>
+  <label for="device_width">Device Width:</label>
+  <input id="device_width" type="number" placeholder="device width" min="200"
+      max="5000" value="2580">
+  <label for="device_height">Device Height:</label>
+  <input id="device_height" type="number" placeholder="device height" min="200"
+      max="5000" value="1600" >
+  <label for="device_pixel_ratio">Device Pixel Ratio:</label>
+  <input id="device_pixel_ratio" type="number" placeholder="device pixel ratio"
+      min="1" max="10" value="2">
+  <label for="layout_width">Layout Width:</label>
+  <input id="layout_width" type="number" placeholder="layout width" min="200"
+      max="5000" value="980">
+  <hr>
+  <label for="logical_width">Logical Width:</label>
+  <input id="logical_width" type="number" readonly>
+  <label for="logical_height">Logical Height:</label>
+  <input id="logical_height" type="number" readonly>
+  <hr>
+  <label for="url_list">URL List:</label>
+  <input id="url_list" type="file">
+</form>
 </body>
 </html>
