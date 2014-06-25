@@ -5,6 +5,8 @@ var layoutWidth;
 var logicalWidth;
 var logicalHeight;
 var urlList;
+var doTest;
+var urlListData;
 
 window.addEventListener("load", main);
 
@@ -19,7 +21,7 @@ function main()
   deviceHeight.addEventListener("change", calculateLogicalSize);
   devicePixelRatio.addEventListener("keyup", calculateLogicalSize);
   devicePixelRatio.addEventListener("change", calculateLogicalSize);
-  urlList.addEventListener("change", checkFile);
+  urlList.addEventListener("change", checkUrlList);
 }
 
 function selectElements()
@@ -31,6 +33,7 @@ function selectElements()
   logicalWidth = document.getElementById("logical_width");
   logicalHeight = document.getElementById("logical_height");
   urlList = document.getElementById("url_list");
+  doTest = document.getElementById("do_test");
 }
 
 function calculateLogicalSize()
@@ -48,13 +51,40 @@ function calculateLogicalSize()
   logicalHeight.value = height;
 }
 
-function checkFile(e)
+function successUrlList()
+{
+  doTest.disabled = false;
+  // FIXME: send "Succeeded to load the url list file." to status bar.
+}
+
+function cancelUrlList()
+{
+  urlListData = null;
+  urlList.value = "";
+  doTest.disabled = true;
+  // FIXME: send "We should only support json file." to status bar.
+}
+
+function checkUrlList(e)
 {
   var file = e.target.files[0];
+  var type = file.name.substr(file.name.length - 4);
 
-  if (file.type != "text/json") {
-    e.target.value = "";
-    // send "We should only support json file." to status bar.
+  if (type != "json") {
+    cancelUrlList();
     return;
   }
+
+  var reader = new FileReader();
+  reader.addEventListener("load", function(f) {
+    try {
+      urlListData = JSON.parse(f.target.result);
+    } catch (e) {
+      cancelUrlList();
+      return;
+    }
+
+    successUrlList();
+  });
+  reader.readAsText(file);
 }
