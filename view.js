@@ -103,6 +103,11 @@ function checkUrlList(e)
 
 function startTest()
 {
-  chrome.extension.getBackgroundPage().startTest(urlListData);
+  chrome.extension.getBackgroundPage().startTest({
+    logicalWidth : logicalWidth.value,
+    logicalHeight : logicalHeight.value,
+    layoutWidth : layoutWidth.value,
+    urlList : urlListData
+  });
   window.close();
 }
