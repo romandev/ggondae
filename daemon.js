@@ -1,5 +1,3 @@
-var testInfo;
-
 function getCurrent(callback)
 {
   chrome.windows.getCurrent({ populate : true }, function(win) {
@@ -9,56 +7,71 @@ function getCurrent(callback)
   });
 }
 
-function requestDeviceSize(callback)
+function requestDeviceSize(width, height, callback)
 {
   getCurrent(function(win, tab) {
-    var dx = testInfo.logicalWidth - tab.width;
-    var dy = testInfo.logicalHeight - tab.height;
+    var dx = width - tab.width;
+    var dy = height - tab.height;
 
     chrome.windows.update(win.id, {
       left : 0,
       top : 0,
       width : win.width + dx,
       height : win.height + dy
-    // NEXT: requestLoadUrl (by requestTest)
     }, callback);
   });
 }
 
-function requestTest()
+function requestTest(info)
 {
-  console.log("requestTest");
-
   // Finished all of tests
-  if (testInfo.urlList.length <= 0)
+  if (info.current == info.urlList.length)
     return;
 
-  // NEXT: requestDeviceSize
-  requestDeviceSize(function() {
-    requestLoadUrl(function() {
-      requestFixedLayout(function() {
-        requestScreenshot(function() {
-          console.log("FINISH");
-        }); // requestScreenshot()
-      }); // requestFixedLayout()
-    }); //requestLoadUrl()
-  }); //requestDeviceSize()
+  var id = info.current;
+  var url = info.urlList[id];
+  var width = info.logicalWidth;
+  var height = info.logicalHeight;
+  var layoutWidth = info.layoutWidth;
+
+  requestDeviceSize(width, height, function() {
+    requestLoadUrl(url, function() {
+      requestScreenshot(id + "-before", function() {
+        requestLoadUrl(url, function() {
+          requestFixedLayout(layoutWidth, function() {
+            requestScreenshot(id + "-after", function() {
+              info.current++;
+              requestTest(info);
+            }); // requestScreenshot();
+          }); // requestFixedLayout();
+        }); // requestLoadUrl();
+      }); // requestScreenshot()
+    }); // requestLoadUrl()
+  }); // requestDeviceSize()
 }
 
-function requestLoadUrl(callback)
+function requestLoadUrl(url, callback)
 {
+  var deleter = setTimeout(function() {
+    requestLoadUrl(url, callback);
+  }, 20000);
+
   getCurrent(function(win, tab) {
     chrome.tabs.update(tab.id, {
-      url : testInfo.urlList.pop()
+      url : url,
     }, function() {
       var loader = function(tabId, changeInfo) {
         if (tabId != tab.id || changeInfo.status != "complete")
           return;
 
+        clearTimeout(deleter);
         chrome.tabs.onUpdated.removeListener(loader);
 
-        // NEXT: requestFixedLayout (by requestTest)
-        callback();
+        // Delayed callback
+        var timer = setTimeout(function() {
+          clearTimeout(timer);
+          callback();
+        }, 500);
       };
 
       chrome.tabs.onUpdated.addListener(loader);
@@ -66,11 +79,11 @@ function requestLoadUrl(callback)
   });
 }
 
-function requestFixedLayout(callback)
+function requestFixedLayout(layoutWidth, callback)
 {
   getCurrent(function(win, tab) {
     chrome.tabs.executeScript(tab.id, {
-      code : "window.__layoutWidth__ = " + testInfo.layoutWidth,
+      code : "window.__layoutWidth__ = " + layoutWidth,
       allFrames : false,
       runAt : "document_start"
     }, function() {
@@ -84,7 +97,7 @@ function requestFixedLayout(callback)
         var timer = setTimeout(function() {
           clearTimeout(timer);
           callback();
-        }, 1000);
+        }, 500);
       });
     });
   });
@@ -99,17 +112,16 @@ function requestScreenshot(name, callback)
       chrome.downloads.download({
         url : image,
         conflictAction : "overwrite",
-        filename : "./result/images/" + testInfo.urlList.length + ".png"
-      });
-      requestTest();
-    });
-  });
+        filename : "./result/images/" + name + ".png"
+      }); // chrome.downloads.download()
+
+      callback();
+    }); // chrome.tabs.captureVisibleTab()
+  }); // getCurrent()
 }
 
 function startTest(info)
 {
-  console.log("startTest");
-
-  testInfo = info;
-  requestTest();
+  info.current = 0;
+  requestTest(info);
 }
